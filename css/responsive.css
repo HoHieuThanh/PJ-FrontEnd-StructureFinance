@@ -1,0 +1,23 @@
+@media screen and (max-width: 768px) {
+    /* index */
+    .section1, .section3{
+        width: 100%;
+    }
+    .content-header{
+        width: 95.83%;
+    }
+    .choose-month, .monthly-budget, .remaining-amount, .manage, .spent, .history, .warning{
+        width: 93.75%;
+    }
+    /* index */
+
+    .main-login, .main-register, .main-login input, .main-login .btn, .main-register input, .main-register .btn {
+        width: 100%;
+    }
+
+    .error {
+        width: calc(100% - 48px);
+        left: 24px;
+        right: 24px;
+    }
+}

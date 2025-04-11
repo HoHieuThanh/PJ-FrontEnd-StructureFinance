@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập tài khoản</title>
+    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../assets/fonts/font.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=cancel"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <main class="main-login">
+        <h2 class="heading2">🔐 Đăng nhập</h2>
+        <form>
+          <input
+            type="text"
+            name="userName"
+            id="userName"
+            placeholder="Tên đăng nhập"
+          />
+          <input
+            type="password"
+            name="password"
+            id="userPassword"
+            placeholder="Mật khẩu"
+          />
+          <button class="btn" type="submit">Đăng nhập</button>
+        </form>
+        <div class="register">
+          Chưa có tài khoản? <a href="./register.html">Đăng ký ngay</a>
+        </div>
+      </main>
+      <div class="error">
+        <div id="error-message">
+          <div id="error-content"></div>
+          <button id="hide-btn">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 -960 960 960"
+              width="24px"
+              fill="#EA3323"
+            >
+              <path
+                d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="../js/login.js"></script>
+  </body>
+</html>

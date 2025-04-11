@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý tài chính cá nhân</title>
+    <link rel="stylesheet" href="../assets/fonts/font.css" />
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header>
+        <div class="content-header">
+          <div class="heading">📒 Tài Chính Cá Nhân K24_Rikkei</div>
+          <select name="accout" id="accout" onchange="handleLogoutOption()">
+            <option value="">Tài khoản</option>
+            <option value="logout">Đăng xuất</option>
+          </select>
+        </div>
+      </header>
+      <!-- Header -->
+
+      <!-- Main -->
+      <main>
+        <!-- S1 -->
+        <div class="section1">
+          <h2 class="s1-heading">🎯 Kiểm soát chi tiêu thông minh</h2>
+          <div class="s1-content">
+            Theo dõi ngân sách và thu chi hằng tháng dễ dàng
+          </div>
+        </div>
+        <!-- S1 -->
+
+        <!-- S2 -->
+        <div class="section2">
+          <h1 class="s2-title">📊 Quản Lý Tài Chính Cá Nhân</h1>
+
+          <!-- Chọn tháng -->
+          <div class="choose-month">
+            <label for="month-input"> 📅 Chọn tháng: </label>
+            <input type="month" id="month-input" />
+          </div>
+
+          <!-- Ngân sách tháng -->
+          <div class="monthly-budget">
+            <form id="monthly-budget-form">
+              <label for="monthly-budget-input">💰 Ngân sách tháng:</label>
+              <input
+                type="number"
+                id="monthly-budget-input"
+                placeholder="VD: 5000000"
+              />
+              <button type="submit" id="monthly-budget-btn">Lưu</button>
+            </form>
+          </div>
+
+          <!-- Số tiền còn lại -->
+          <div class="remaining-amount">
+            <div class="caption-remaining">Số tiền còn lại</div>
+            <div class="content-remaining">0 VND</div>
+          </div>
+
+          <!-- Quản lý danh mục -->
+          <div class="manage">
+            <h2 class="manage-title">💼 Quản lý danh mục (theo tháng)</h2>
+            <form class="manage-form" id="manage-form">
+              <input
+                type="text"
+                class="manage-category"
+                id="manage-category-input"
+                placeholder="Tên danh mục"
+              />
+              <input
+                type="number"
+                class="manage-limit"
+                id="manage-limit-input"
+                placeholder="Giới hạn (VND)"
+              />
+              <button class="manage-btn" id="manage-btn-add">
+                Thêm danh mục
+              </button>
+            </form>
+            <ul class="manage-ul" id="manage-list"></ul>
+          </div>
+
+          <!-- Số tiền chi tiêu -->
+          <form class="spent" id="transaction-form">
+            <input
+              class="spent-type spent-amount-note"
+              id="spent-amount-input"
+              type="number"
+              placeholder="Số tiền"
+            />
+            <select class="spent-type spent-category" name="">
+              <option value="">Tiền chi tiêu</option>
+            </select>
+            <input
+              class="spent-type spent-amount-note"
+              id="spent-note-input"
+              type="text"
+              placeholder="Ghi chú"
+            />
+            <button type="submit" class="spent-btn-add">Thêm</button>
+          </form>
+
+          <!-- Lịch sử giao dịch -->
+          <div class="history">
+            <div class="history-title">🧾 Lịch sử giao dịch</div>
+            <form class="history-form">
+              <img
+                class="history-icon-content"
+                src="../assets/icons/history-content.png"
+                alt=""
+              />
+
+              <input
+                type="text"
+                class="history-content-input"
+                placeholder="tìm nội dung"
+              />
+              <button class="history-btn-search">
+                <img src="../assets/icons/history-btn-search.png" alt="" />
+              </button>
+              <select class="history-sort" name="">
+                <option value="default">Sắp xếp theo giá</option>
+                <option value="increase">Giá tăng dần</option>
+                <option value="decrease">Giá giảm dần</option>
+              </select>
+            </form>
+            <ul class="history-list">
+              <!-- <li class="history-items">
+                <span class="history-items-content"
+                  >tiền ăn - bánh mì: 30,000 VND</span
+                ><button class="history-items-btn">Xóa</button>
+              </li> -->
+            </ul>
+            <ul class="history-nav">
+              <button class="history-nav-previous btn-hover">Previous</button>
+              <!-- <button class="history-nav-number">1</button>
+              <button class="history-nav-number">2</button>
+              <button class="history-nav-number">3</button> -->
+              <button class="history-nav-next btn-hover">Next</button>
+            </ul>
+          </div>
+
+          <!-- Cảnh báo -->
+          <div class="warning">Hãy chi tiêu thật hợp lý nhé!</div>
+        </div>
+        <!-- S2 -->
+
+        <!-- S3 -->
+        <div class="section3">
+          <h2 class="s3-title">📆 Thống kê chi tiêu các tháng</h2>
+          <table class="s3-table">
+            <thead class="s3-table-thead">
+              <tr class="s3-table-tr">
+                <th class="s3-table-th">Tháng</th>
+                <th class="s3-table-th">Chi tiêu</th>
+                <th class="s3-table-th">Ngân sách</th>
+                <th class="s3-table-th">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody class="s3-table-tbody">
+              <tr class="s3-table-tr">
+                <td class="s3-table-td">2025-03</td>
+                <td class="s3-table-td">2,150,000 VND</td>
+                <td class="s3-table-td">5,000,000</td>
+                <td class="s3-table-td status-success">✔ Đạt</td>
+              </tr>
+              <tr class="s3-table-tr">
+                <td class="s3-table-td">2025-04</td>
+                <td class="s3-table-td">3,100,000 VND</td>
+                <td class="s3-table-td">3,000,000</td>
+                <td class="s3-table-td status-fail">Vượt</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- S3 -->
+      </main>
+      <!-- Main -->
+
+      <!-- Footer -->
+      <footer>© 2025 Quản Lý Tài Chính Cá Nhân. by Quốc Hai!</footer>
+      <!-- Footer -->
+    </div>
+    <script src="../js/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js"></script>
+  </body>
+</html>
