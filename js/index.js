@@ -16,7 +16,6 @@ const manageCategoryInput = document.getElementById("manage-category-input");
 const manageLimitInput = document.getElementById("manage-limit-input");
 const manageBtnAdd = document.getElementById("manage-btn-add");
 const manageList = document.getElementById("manage-list");
-const manageItem = document.getElementById("manage-item");
 let editCategoryId = null;
 
 // Hàm đăng xuất
@@ -53,6 +52,11 @@ monthInputE.addEventListener("input", (e) => {
     manageLimitInput.value = "";
     displayAmount();
     renderCategories();
+    warning();
+    updateCategoryOptions();
+    renderTransactionList();
+    renderRemainingAmount();
+    renderStatisticsTable();
 });
 
 // Lưu ngân sách tháng
@@ -89,6 +93,7 @@ monthlyBudgetForm.addEventListener("submit", (e) => {
         displayAmount();
     }
     monthlyBudgetInput.value = "";
+    renderStatisticsTable();
 });
 
 // Hàm cập nhật giao diện số tiền còn lại
@@ -238,6 +243,7 @@ manageList.addEventListener("click", (e) => {
                 localStorage.setItem(`monthlyCategories${idLoginLocal}`, JSON.stringify(monthlyCategoriesLocal));
                 renderCategories();
                 updateCategoryOptions();
+                renderStatisticsTable();
                 Swal.fire({
                     title: "Xóa thành công!",
                     icon: "success"
@@ -310,7 +316,7 @@ function renderRemainingAmount() {
   remainingAmountE.textContent = `${remaining.toLocaleString("vi-VN")} VND`;
 }
 
-// Tạo các nút chuyển trang cho lịch sử giao dịch
+// Tạo nút phâm trang
 function renderPagination(totalPages) {
   historyNav.innerHTML = "";
 
@@ -348,18 +354,20 @@ function renderPagination(totalPages) {
   historyNav.appendChild(nextBtn);
 }
 
-// Hiển thị danh sách giao dịch theo tháng, tìm kiếm, sắp xếp và phân trang
+// Hiển thị danh sách giao dịch theo tháng
 function renderTransactionList() {
   const monthTransactions = transactionsLocal.filter(t => {
     const monthStr = t.date;
     return monthStr === currentMonth;
   });
 
+  // Tìm kiếm
   const keyword = historySearch.value.trim().toLowerCase();
   const filtered = monthTransactions.filter(t =>
     t.description.toLowerCase().includes(keyword)
   );
 
+  // Sắp xếp
   let sorted = [...filtered];
   const sort = historySort.value;
   if (sort === "increase") {
@@ -368,11 +376,11 @@ function renderTransactionList() {
     sorted.sort((a, b) => b.amount - a.amount);
   }
 
+  // Hiển thị phân trang
   const totalPages = Math.ceil(sorted.length / itemsPage);
   currentPage = Math.min(currentPage, totalPages || 1);
-  const start = (currentPage - 1) * itemsPage;
+  const start = (currentPage - 1) * itemsPage; // Item bắt đầu phân trang
   const pageItems = sorted.slice(start, start + itemsPage);
-
   historyList.innerHTML = "";
   pageItems.forEach(t => {
     const li = document.createElement("li");
@@ -404,6 +412,8 @@ function historyDelete (id) {
             localStorage.setItem(`transactions${idLoginLocal}`, JSON.stringify(transactionsLocal));
             renderRemainingAmount();
             renderTransactionList();
+            warning();
+            renderStatisticsTable();
             Swal.fire({
                 title: "Xóa thành công!",
                 icon: "success"
@@ -413,6 +423,8 @@ function historyDelete (id) {
 }
 
 // Thêm giao dịch
+let categoryIdHistory;
+let amountHistory;
 transactionForm.addEventListener("submit", (e) => {
   e.preventDefault();
   if (!currentMonth) {
@@ -424,11 +436,12 @@ transactionForm.addEventListener("submit", (e) => {
   }
 
   // Lấy dữ liệu từ form
-  const amount = +transactionAmountInput.value;
-  const description = transactionDescriptionInput.value.trim();
-  const categoryId = parseInt(transactionCategorySelect.value);
+  amountHistory = +transactionAmountInput.value;
+  let description = transactionDescriptionInput.value.trim();
+  description = description.charAt(0).toUpperCase() + description.slice(1);
+  categoryIdHistory = parseInt(transactionCategorySelect.value);
   const monthCategoryId = getMonthCategoryIndex() + 1;
-  if(!amount){
+  if(!amountHistory){
     Swal.fire({
         icon: "info",
         text: "Vui lòng nhập số tiền!",
@@ -436,7 +449,7 @@ transactionForm.addEventListener("submit", (e) => {
     return;
   }
 
-  if(amount < 0){
+  if(amountHistory < 0){
     Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -444,7 +457,7 @@ transactionForm.addEventListener("submit", (e) => {
     });
     return;
   }
-  if (isNaN(categoryId)) {
+  if (isNaN(categoryIdHistory)) {
     Swal.fire({
       icon: "info",
       text: "Vui lòng chọn danh mục!"
@@ -460,27 +473,15 @@ transactionForm.addEventListener("submit", (e) => {
     return;
   }
 
-  // Kiểm tra tổng chi tiêu danh mục hiện tại có vượt quá giới hạn không
-    const monthData = monthlyCategoriesLocal.find(item => item.month === currentMonth);
-    if(!monthData) return;
-    const category = monthData.categories.find(c => c.id === categoryId);
-    totalSpentForCategory = transactionsLocal
-    .filter(t => t.categoryId === categoryId && t.date === currentMonth)
-    .reduce((sum, t) => sum + t.amount, 0) + amount;
+  warning();
 
-  if (category && totalSpentForCategory > category.budget) {
-    warningContent.innerText = `Danh mục "${category.name}" đã vượt quá giới hạn: ${Number(totalSpentForCategory).toLocaleString("vi-VN")}/${Number(category.budget).toLocaleString("vi-VN")} VND`;
-  } else {
-    warningContent.innerText = "Hãy chi tiêu thật hợp lý nhé!";
-  }
-
-  // Tạo và lưu giao dịch mới
+  // Lưu giao dịch mới
   const newTransaction = {
     id: transactionIdCounter++,
     date: currentMonth,
-    amount,
+    amount : amountHistory,
     description,
-    categoryId,
+    categoryId : categoryIdHistory,
     monthCategoryId
   };
 
@@ -488,11 +489,28 @@ transactionForm.addEventListener("submit", (e) => {
   localStorage.setItem(`transactions${idLoginLocal}`, JSON.stringify(transactionsLocal));
   localStorage.setItem(`transactionIdCounter${idLoginLocal}`, transactionIdCounter.toString());
 
-  // Cập nhật giao diện sau khi thêm giao dịch
   transactionForm.reset();
   renderTransactionList();
   renderRemainingAmount();
+  renderStatisticsTable();
 });
+
+// Hàm Cảnh báo
+function warning () {
+
+  const monthData = monthlyCategoriesLocal.find(item => item.month === currentMonth);
+  if(!monthData) return;
+  const category = monthData.categories.find(c => c.id === categoryIdHistory);
+  totalSpentForCategory = transactionsLocal
+  .filter(t => t.categoryId === categoryIdHistory && t.date === currentMonth)
+  .reduce((sum, t) => sum + t.amount, 0) + amountHistory;
+  
+  if (category && totalSpentForCategory > category.budget) {
+    warningContent.innerText = `Danh mục "${category.name}" đã vượt quá giới hạn: ${Number(totalSpentForCategory).toLocaleString("vi-VN")}/${Number(category.budget).toLocaleString("vi-VN")} VND`;
+  } else {
+    warningContent.innerText = "Hãy chi tiêu thật hợp lý nhé!";
+  }
+}
 
 // Tìm kiếm giao dịch khi nhấn nút tìm
 historySearchBtn.addEventListener("click", (e) => {
@@ -503,14 +521,36 @@ historySearchBtn.addEventListener("click", (e) => {
 // Sắp xếp giao dịch theo giá tiền
 historySort.addEventListener("change", renderTransactionList);
 
-// Khi thay đổi tháng, cập nhật lại danh mục, giao dịch và số dư
-monthInputE.addEventListener("input", () => {
-  updateCategoryOptions();
-  renderTransactionList();
-  renderRemainingAmount();
-});
+// BẢNG THỐNG KÊ
+const statisticsBody = document.querySelector(".s3-table-tbody");
 
-// Khởi tạo giao diện ban đầu
+// Hàm hiển thị bảng thống kê
+function renderStatisticsTable() {
+  statisticsBody.innerHTML = "";
+
+  monthlyCategoriesLocal.forEach(item => {
+    const totalSpent = transactionsLocal
+    .filter(t => t.date === item.month)
+    .reduce((sum, t) => sum + t.amount, 0);
+    const budget = item.monthlyBudget;
+    const isSuccess = totalSpent <= budget;
+    const status = isSuccess ? "✔ Đạt" : "Vượt";
+    const statusClass = isSuccess ? "status-success" : "status-fail";
+
+    const tr = document.createElement("tr");
+    tr.className = "s3-table-tr";
+    tr.innerHTML = `
+      <td class="s3-table-td">${item.month}</td>
+      <td class="s3-table-td">${totalSpent.toLocaleString("vi-VN")} VND</td>
+      <td class="s3-table-td">${Number(budget).toLocaleString("vi-VN")} VND</td>
+      <td class="s3-table-td ${statusClass}">${status}</td>
+    `;
+    statisticsBody.appendChild(tr);
+  });
+}
+
+// Gọi hàm khi tải trang
 updateCategoryOptions();
 renderTransactionList();
 renderRemainingAmount();
+renderStatisticsTable();
